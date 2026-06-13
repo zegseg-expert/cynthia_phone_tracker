@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Tracker Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f0f2f5;
+        }
+
+        /* Header */
+        .header {
+            background: #1a73e8;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header p {
+            font-size: 14px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        /* Main container */
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Map section */
+        .map-section {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .map-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .map-card h3 {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+
+        /* Info section */
+        .info-section {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-card h3 {
+            margin-bottom: 15px;
+            color: #1a73e8;
+            border-bottom: 2px solid #1a73e8;
+            padding-bottom: 8px;
+        }
+
+        .device-info {
+            margin-bottom: 15px;
+        }
+
+        .device-info .label {
+            font-weight: bold;
+            color: #555;
+            display: inline-block;
+            width: 80px;
+        }
+
+        .device-info .value {
+            color: #333;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status.active {
+            background: #e6f4ea;
+            color: #137333;
+        }
+
+        .status.offline {
+            background: #fce8e6;
+            color: #c5221f;
+        }
+
+        /* History list */
+        .history-list {
+            list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-list li {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-list li:hover {
+            background: #f8f9fa;
+        }
+
+        .history-time {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .history-location {
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <!-- Leaflet CSS for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+
+<div class="header">
+    <h1>📍 Phone Tracker Dashboard</h1>
+    <p>Real-time location tracking for your lost device</p>
+</div>
+
+<div class="container">
+    <!-- Map Section -->
+    <div class="map-section">
+        <div class="map-card">
+            <h3>📍 Current Location</h3>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="info-section">
+        <div class="info-card">
+            <h3>📱 Device Status</h3>
+            <div class="device-info">
+                <span class="label">Device ID:</span>
+                <span class="value" id="deviceId">LOST_PHONE_123</span>
+            </div>
+            <div class="device-info">
+                <span class="label">Status:</span>
+                <span class="status active" id="status">Active</span>
+            </div>
+            <div class="device-info">
+                <span class="label">Last seen:</span>
+                <span class="value" id="lastSeen">Just now</span>
+            </div>
+            <div class="device-info">
+                <span class="label">Coordinates:</span>
+                <span class="value" id="coordinates">37.7749°N, 122.4194°W</span>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h3>📜 Location History</h3>
+            <ul class="history-list" id="historyList">
+                <li>No data yet. Send a location from your phone.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <p>When your phone is lost, check here for its last known location</p>
+</div>
+
+<!-- Leaflet JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // Initialize map (default to San Francisco)
+    let map = L.map('map').setView([37.7749, -122.4194], 13);
+    
+    // Add tile layer (the actual map)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Marker for current location
+    let currentMarker = null;
+
+    // Sample data (replace with Firebase later)
+    let currentLocation = {
+        lat: 37.7749,
+        lng: -122.4194,
+        time: new Date(),
+        address: "San Francisco, CA"
+    };
+
+    let locationHistory = [
+        { lat: 37.7749, lng: -122.4194, time: new Date(), address: "San Francisco" },
+        { lat: 37.7825, lng: -122.4105, time: new Date(Date.now() - 3600000), address: "Chinatown" }
+    ];
+
+    // Function to update map
+    function updateMap(lat, lng) {
+        // Remove old marker
+        if (currentMarker) {
+            map.removeLayer(currentMarker);
+        }
+        
+        // Add new marker
+        currentMarker = L.marker([lat, lng]).addTo(map);
+        currentMarker.bindPopup("<b>Last known location</b><br>Time: " + new Date().toLocaleTimeString()).openPopup();
+        
+        // Center map on location
+        map.setView([lat, lng], 15);
+    }
+
+    // Function to update dashboard
+    function updateDashboard() {
+        // Update coordinates display
+        document.getElementById('coordinates').innerHTML = 
+            currentLocation.lat.toFixed(4) + "°N, " + currentLocation.lng.toFixed(4) + "°W";
+        
+        // Update last seen
+        let timeAgo = Math.floor((new Date() - currentLocation.time) / 60000);
+        if (timeAgo < 1) {
+            document.getElementById('lastSeen').innerHTML = "Just now";
+        } else {
+            document.getElementById('lastSeen').innerHTML = timeAgo + " minutes ago";
+        }
+        
+        // Update map
+        updateMap(currentLocation.lat, currentLocation.lng);
+        
+        // Update history list
+        let historyHtml = '';
+        for (let i = locationHistory.length - 1; i >= 0; i--) {
+            let item = locationHistory[i];
+            let timeStr = item.time.toLocaleTimeString();
+            historyHtml += `
+                <li>
+                    <span class="history-location">📍 ${item.address}</span>
+                    <span class="history-time">${timeStr}</span>
+                </li>
+            `;
+        }
+        document.getElementById('historyList').innerHTML = historyHtml;
+    }
+
+    // Simulate receiving new location (replace with Firebase later)
+    function receiveNewLocation(lat, lng, address) {
+        // Add to history
+        locationHistory.push({
+            lat: lat,
+            lng: lng,
+            time: new Date(),
+            address: address
+        });
+        
+        // Keep only last 20 locations
+        if (locationHistory.length > 20) {
+            locationHistory.shift();
+        }
+        
+        // Update current location
+        currentLocation = {
+            lat: lat,
+            lng: lng,
+            time: new Date(),
+            address: address
+        };
+        
+        // Refresh dashboard
+        updateDashboard();
+    }
+
+    // Demo: Simulate a location update every 30 seconds (remove later)
+    let demoLocations = [
+        { lat: 37.7749, lng: -122.4194, address: "Market Street" },
+        { lat: 37.7825, lng: -122.4105, address: "Chinatown" },
+        { lat: 37.7937, lng: -122.4025, address: "North Beach" }
+    ];
+    
+    let demoIndex = 0;
+    setInterval(function() {
+        let loc = demoLocations[demoIndex % demoLocations.length];
+        receiveNewLocation(loc.lat, loc.lng, loc.address);
+        demoIndex++;
+    }, 30000);
+
+    // Initial load
+    updateDashboard();
+    
+    console.log("Website ready! Waiting for location data...");
+</script>
+
+</body>
+</html>
