@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Cynthia Phone Tracker | Live Dashboard</title>
+    <title>Cynthia Phone Tracker | Live History</title>
     <style>
         * {
             margin: 0;
@@ -20,24 +20,23 @@
         .header {
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
-            padding: 20px;
+            padding: 15px 20px;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .header h1 {
-            font-size: 1.8rem;
-            letter-spacing: -0.5px;
+            font-size: 1.5rem;
         }
 
         .header p {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             opacity: 0.9;
-            margin-top: 5px;
         }
 
         .container {
             display: flex;
+            flex-direction: row;
             flex-wrap: wrap;
             gap: 20px;
             padding: 20px;
@@ -45,133 +44,99 @@
             margin: 0 auto;
         }
 
-        .map-card {
+        .map-container {
             flex: 2;
             min-width: 280px;
             background: white;
             border-radius: 20px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
             overflow: hidden;
-            transition: transform 0.2s;
         }
 
-        .map-card:hover {
-            transform: translateY(-3px);
-        }
-
-        .map-card h3 {
+        .map-container h3 {
             background: #f8fafc;
-            padding: 15px 20px;
+            padding: 12px 20px;
             border-bottom: 1px solid #e2e8f0;
             font-weight: 600;
-            color: #1e293b;
         }
 
         #map {
-            height: 500px;
+            height: 450px;
             width: 100%;
             z-index: 1;
         }
 
-        .info-panel {
+        .history-container {
             flex: 1;
-            min-width: 260px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .card {
+            min-width: 280px;
             background: white;
             border-radius: 20px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            padding: 20px;
-            transition: transform 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-3px);
-        }
-
-        .card h3 {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1.3rem;
-            color: #1e3c72;
-            margin-bottom: 15px;
-            border-left: 4px solid #2a5298;
-            padding-left: 12px;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        .device-row {
+        .history-container h3 {
+            background: #f8fafc;
+            padding: 12px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #edf2f7;
-        }
-
-        .label {
-            font-weight: 600;
-            color: #475569;
-        }
-
-        .value {
-            color: #0f172a;
-            font-family: monospace;
-            font-weight: 500;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            background: #dcfce7;
-            color: #15803d;
-        }
-
-        .status-badge.offline {
-            background: #fee2e2;
-            color: #b91c1c;
+            align-items: center;
         }
 
         .history-list {
             list-style: none;
-            max-height: 280px;
             overflow-y: auto;
-            margin-top: 10px;
+            max-height: 450px;
+            padding: 0;
+            margin: 0;
         }
 
         .history-list li {
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 12px 16px;
+            border-bottom: 1px solid #edf2f7;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            transition: background 0.2s;
         }
 
-        .history-location {
-            font-weight: 500;
-            color: #1e293b;
+        .history-list li:hover {
+            background: #f1f5f9;
+            cursor: pointer;
         }
 
         .history-time {
             color: #64748b;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             background: #f1f5f9;
             padding: 4px 8px;
             border-radius: 20px;
         }
 
+        .history-coord {
+            font-family: monospace;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .badge {
+            background: #2a5298;
+            color: white;
+            border-radius: 30px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+        }
+
         .footer {
             text-align: center;
-            margin-top: 20px;
             padding: 15px;
             color: #5b6e8c;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
         @media (max-width: 700px) {
@@ -188,7 +153,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <!-- Firebase SDKs (Realtime Database) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
@@ -196,57 +161,31 @@
 
 <div class="header">
     <h1>📍 Cynthia Phone Tracker</h1>
-    <p>Live location • Works even when phone is off (via BLE network)</p>
+    <p>Live location & history • Real-time updates</p>
 </div>
 
 <div class="container">
     <!-- Map Section -->
-    <div class="map-card">
-        <h3>🗺️ Last known position</h3>
+    <div class="map-container">
+        <h3>🗺️ Live Map with Trail</h3>
         <div id="map"></div>
     </div>
 
-    <!-- Right Panel -->
-    <div class="info-panel">
-        <div class="card">
-            <h3>📱 Device status</h3>
-            <div class="device-row">
-                <span class="label">Device ID:</span>
-                <span class="value" id="deviceId">cynthia_phone_01</span>
-            </div>
-            <div class="device-row">
-                <span class="label">Status:</span>
-                <span class="status-badge" id="statusBadge">🟢 Live</span>
-            </div>
-            <div class="device-row">
-                <span class="label">Last seen:</span>
-                <span class="value" id="lastSeen">Waiting for data...</span>
-            </div>
-            <div class="device-row">
-                <span class="label">Coordinates:</span>
-                <span class="value" id="coordinates">—</span>
-            </div>
-            <div class="device-row">
-                <span class="label">Accuracy:</span>
-                <span class="value" id="accuracy">± ? m</span>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>📜 Location history</h3>
-            <ul class="history-list" id="historyList">
-                <li style="justify-content:center;">🔍 Waiting for first location...</li>
-            </ul>
-        </div>
+    <!-- History Section -->
+    <div class="history-container">
+        <h3>📜 Location History <span class="badge" id="historyCount">0</span></h3>
+        <ul class="history-list" id="historyList">
+            <li style="justify-content:center;">Loading history...</li>
+        </ul>
     </div>
 </div>
 
 <div class="footer">
-    <span>📍 Real-time feed from Firebase • When phone is ON it sends GPS • When OFF, ESP32 beacon + crowd reports</span>
+    <span>📍 Every 30 minutes your phone sends location • All past positions shown below and on map.</span>
 </div>
 
 <script>
-    // ----------------------------- FIREBASE CONFIG (YOURS) -----------------------------
+    // Firebase configuration (same as yours)
     const firebaseConfig = {
         apiKey: "AIzaSyDuCJEgB5BZP-yK5vxPHRE5OliHTE_uvMM",
         authDomain: "phone-tracker-a71a8.firebaseapp.com",
@@ -262,182 +201,116 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // ----------------------------- LEALET MAP INIT -----------------------------
-    // Default center (will update when real location arrives)
+    // Map initialization (default view)
     let map = L.map('map').setView([37.7749, -122.4194], 13);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
         subdomains: 'abcd',
         maxZoom: 19
     }).addTo(map);
-    
-    let currentMarker = null;
-    let accuracyCircle = null;
 
-    // Helper: update map with lat/lng and accuracy (meters)
-    function updateMapLocation(lat, lng, accuracyMeters = 30) {
-        if (currentMarker) {
-            map.removeLayer(currentMarker);
-        }
-        if (accuracyCircle) {
-            map.removeLayer(accuracyCircle);
-        }
-        // Marker
-        currentMarker = L.marker([lat, lng]).addTo(map);
-        currentMarker.bindPopup(`<b>📍 Last seen</b><br>${new Date().toLocaleString()}`).openPopup();
-        
-        // Accuracy circle (if accuracy is provided and reasonable)
-        if (accuracyMeters && accuracyMeters < 500) {
-            accuracyCircle = L.circle([lat, lng], {
-                radius: accuracyMeters,
-                color: '#3388ff',
-                weight: 1,
-                fillColor: '#3388ff',
-                fillOpacity: 0.15
-            }).addTo(map);
-        }
-        map.setView([lat, lng], Math.max(14, Math.min(17, 15 - Math.log2(accuracyMeters/10))));
-    }
+    // Store markers and lines
+    let markerLayer = L.layerGroup().addTo(map);
+    let polylineLayer = L.layerGroup().addTo(map);
+    let allLocations = [];   // array of {lat, lng, timestamp, accuracy}
 
-    // Format relative time
-    function timeAgo(timestampMs) {
-        if (!timestampMs) return "never";
-        const seconds = Math.floor((Date.now() - timestampMs) / 1000);
-        if (seconds < 10) return "just now";
-        const minutes = Math.floor(seconds / 60);
-        if (minutes < 1) return `${seconds} sec ago`;
-        if (minutes < 60) return `${minutes} min ago`;
-        const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `${hours} hour${hours>1?'s':''} ago`;
-        return new Date(timestampMs).toLocaleDateString();
-    }
+    // Function to update the entire UI
+    function updateUI() {
+        // Sort locations by timestamp (oldest first for polyline, newest first for list)
+        const sortedOldest = [...allLocations].sort((a,b) => a.timestamp - b.timestamp);
+        const sortedNewest = [...allLocations].sort((a,b) => b.timestamp - a.timestamp);
 
-    // Global history store (max 20)
-    let locationHistory = [];  // each item: {lat, lng, timestamp, accuracy, address?}
+        // Clear layers
+        markerLayer.clearLayers();
+        polylineLayer.clearLayers();
 
-    function updateUI(latestLocation, allLocations) {
-        if (!latestLocation) return;
-        
-        // Update device status panel
-        const lat = latestLocation.lat;
-        const lng = latestLocation.lng;
-        const acc = latestLocation.accuracy || 20;
-        const timeMs = latestLocation.timestamp;
-        
-        document.getElementById('coordinates').innerHTML = `${lat.toFixed(5)}°, ${lng.toFixed(5)}°`;
-        document.getElementById('lastSeen').innerHTML = timeAgo(timeMs);
-        document.getElementById('accuracy').innerHTML = `± ${Math.round(acc)} m`;
-        
-        // Update status badge (if last update > 2 hours show offline)
-        const twoHours = 2 * 60 * 60 * 1000;
-        const isRecent = (Date.now() - timeMs) < twoHours;
-        const badge = document.getElementById('statusBadge');
-        if (isRecent) {
-            badge.innerHTML = "🟢 Live";
-            badge.className = "status-badge";
-        } else {
-            badge.innerHTML = "⚫ Offline / waiting";
-            badge.className = "status-badge offline";
-        }
-        
-        // Update map
-        updateMapLocation(lat, lng, acc);
-        
-        // Update history list HTML
-        const historyListEl = document.getElementById('historyList');
-        if (!allLocations || allLocations.length === 0) {
-            historyListEl.innerHTML = '<li style="justify-content:center;">📍 No history yet</li>';
+        if (allLocations.length === 0) {
+            document.getElementById('historyList').innerHTML = '<li style="justify-content:center;">No history yet. Waiting for location data...</li>';
+            document.getElementById('historyCount').innerText = '0';
             return;
         }
-        
-        let html = '';
-        for (let i = 0; i < Math.min(allLocations.length, 12); i++) {
-            const loc = allLocations[i];
-            const locTime = new Date(loc.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            // optional: reverse geocode later
-            const shortCoord = `${loc.lat.toFixed(3)}°, ${loc.lng.toFixed(3)}°`;
-            html += `
-                <li>
-                    <span class="history-location">📍 ${shortCoord}</span>
-                    <span class="history-time">${locTime}</span>
+
+        // 1. Draw polyline trail (oldest to newest)
+        if (sortedOldest.length >= 2) {
+            const latlngs = sortedOldest.map(loc => [loc.lat, loc.lng]);
+            const polyline = L.polyline(latlngs, { color: '#3388ff', weight: 3, opacity: 0.7 }).addTo(polylineLayer);
+        }
+
+        // 2. Add markers for each location (newest is red, others blue)
+        sortedOldest.forEach((loc, index) => {
+            const isLatest = (index === sortedOldest.length - 1);
+            const markerColor = isLatest ? 'red' : 'blue';
+            const popupText = `<b>${isLatest ? 'Latest' : 'Past'} location</b><br>
+                                Lat: ${loc.lat.toFixed(5)}<br>
+                                Lng: ${loc.lng.toFixed(5)}<br>
+                                Time: ${new Date(loc.timestamp).toLocaleString()}<br>
+                                Accuracy: ±${Math.round(loc.accuracy || 20)}m`;
+            const marker = L.circleMarker([loc.lat, loc.lng], {
+                radius: isLatest ? 10 : 6,
+                color: markerColor,
+                weight: 2,
+                fillColor: markerColor,
+                fillOpacity: 0.7
+            }).addTo(markerLayer);
+            marker.bindPopup(popupText);
+        });
+
+        // Center map on the latest location
+        const latest = sortedNewest[0];
+        map.setView([latest.lat, latest.lng], 14);
+
+        // 3. Build history list HTML (newest first)
+        let listHtml = '';
+        for (let i = 0; i < sortedNewest.length; i++) {
+            const loc = sortedNewest[i];
+            const timeStr = new Date(loc.timestamp).toLocaleString();
+            const shortCoord = `${loc.lat.toFixed(4)}°, ${loc.lng.toFixed(4)}°`;
+            listHtml += `
+                <li onclick="map.setView([${loc.lat}, ${loc.lng}], 16)">
+                    <span class="history-coord">📍 ${shortCoord}</span>
+                    <span class="history-time">${timeStr}</span>
                 </li>
             `;
         }
-        historyListEl.innerHTML = html;
+        document.getElementById('historyList').innerHTML = listHtml;
+        document.getElementById('historyCount').innerText = allLocations.length;
     }
 
-    // Listen to Firebase Realtime Database
-    // We'll store locations under /locations (ordered by timestamp)
-    // Structure: /locations/{pushId} with fields: lat, lng, accuracy, timestamp, source (optional)
-    function initRealtimeListener() {
+    // Listen to Firebase for all location history
+    function listenForHistory() {
         const locationsRef = database.ref('locations');
-        // Order by timestamp descending to get latest easily
-        locationsRef.orderByChild('timestamp').limitToLast(20).on('value', (snapshot) => {
+        locationsRef.orderByChild('timestamp').on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data) {
-                console.log("No locations in DB yet. Waiting for phone to send data.");
-                document.getElementById('historyList').innerHTML = '<li style="justify-content:center;">📡 No data. Send location from your phone.</li>';
+                allLocations = [];
+                updateUI();
                 return;
             }
-            
-            // Convert object to array and sort by timestamp descending
-            let locationsArray = [];
+
+            // Convert object to array
+            let newLocations = [];
             for (let id in data) {
                 let loc = data[id];
-                if (loc && typeof loc.lat === 'number' && typeof loc.lng === 'number') {
-                    locationsArray.push({
+                if (loc && typeof loc.lat === 'number' && typeof loc.lng === 'number' && loc.timestamp) {
+                    newLocations.push({
                         id: id,
                         lat: loc.lat,
                         lng: loc.lng,
-                        accuracy: loc.accuracy || 15,
-                        timestamp: loc.timestamp || 0,
-                        source: loc.source || 'phone'
+                        timestamp: loc.timestamp,
+                        accuracy: loc.accuracy || 20
                     });
                 }
             }
-            // sort by timestamp descending (newest first)
-            locationsArray.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
-            
-            if (locationsArray.length === 0) return;
-            
-            const latest = locationsArray[0];
-            // For history we show descending (newest first in list)
-            updateUI(latest, locationsArray);
-        }, (error) => {
-            console.error("Firebase read error:", error);
-            document.getElementById('historyList').innerHTML = '<li>⚠️ Firebase error. Check rules.</li>';
+            // Sort by timestamp (for consistency)
+            newLocations.sort((a,b) => a.timestamp - b.timestamp);
+            allLocations = newLocations;
+            updateUI();
         });
     }
 
-    // Helper to set device ID (optional)
-    function setDeviceId() {
-        // you can customize or read from URL param
-        const urlParams = new URLSearchParams(window.location.search);
-        const device = urlParams.get('device') || 'cynthia_phone_01';
-        document.getElementById('deviceId').innerText = device;
-    }
-
-    // Start everything
-    setDeviceId();
-    initRealtimeListener();
-    
-    // Optional: Write test location only once? (only if you want to demo, but leave commented)
-    // To test without phone, you can uncomment next lines once (will create a sample location)
-    /*
-    function addTestLocation() {
-        const testRef = database.ref('locations/test');
-        testRef.set({
-            lat: 37.7749,
-            lng: -122.4194,
-            accuracy: 10,
-            timestamp: Date.now(),
-            source: 'dashboard_demo'
-        });
-    }
-    // addTestLocation(); // only if you want initial pin
-    */
-    
-    console.log("Dashboard live. Listening to Firebase Realtime Database at /locations");
+    // Start listening
+    listenForHistory();
+    console.log("Dashboard with history active. Waiting for location data...");
 </script>
 </body>
 </html>
