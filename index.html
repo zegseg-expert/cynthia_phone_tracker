@@ -3,156 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Cynthia Phone Tracker | Live History</title>
+    <title>Cynthia Tracker – Phone & ESP32</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #e9eef3;
-            padding-bottom: 20px;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-        }
-
-        .header p {
-            font-size: 0.8rem;
-            opacity: 0.9;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .map-container {
-            flex: 2;
-            min-width: 280px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .map-container h3 {
-            background: #f8fafc;
-            padding: 12px 20px;
-            border-bottom: 1px solid #e2e8f0;
-            font-weight: 600;
-        }
-
-        #map {
-            height: 450px;
-            width: 100%;
-            z-index: 1;
-        }
-
-        .history-container {
-            flex: 1;
-            min-width: 280px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .history-container h3 {
-            background: #f8fafc;
-            padding: 12px 20px;
-            border-bottom: 1px solid #e2e8f0;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .history-list {
-            list-style: none;
-            overflow-y: auto;
-            max-height: 450px;
-            padding: 0;
-            margin: 0;
-        }
-
-        .history-list li {
-            padding: 12px 16px;
-            border-bottom: 1px solid #edf2f7;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            transition: background 0.2s;
-        }
-
-        .history-list li:hover {
-            background: #f1f5f9;
-            cursor: pointer;
-        }
-
-        .history-time {
-            color: #64748b;
-            font-size: 0.7rem;
-            background: #f1f5f9;
-            padding: 4px 8px;
-            border-radius: 20px;
-        }
-
-        .history-coord {
-            font-family: monospace;
-            font-weight: 500;
-            color: #1e293b;
-        }
-
-        .badge {
-            background: #2a5298;
-            color: white;
-            border-radius: 30px;
-            padding: 2px 8px;
-            font-size: 0.7rem;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 15px;
-            color: #5b6e8c;
-            font-size: 0.75rem;
-        }
-
-        @media (max-width: 700px) {
-            .container {
-                flex-direction: column;
-            }
-            #map {
-                height: 350px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e9eef3; padding-bottom: 20px; }
+        .header { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; padding: 15px 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header h1 { font-size: 1.5rem; }
+        .header p { font-size: 0.8rem; opacity: 0.9; }
+        .container { display: flex; flex-direction: row; flex-wrap: wrap; gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; }
+        .map-container { flex: 2; min-width: 280px; background: white; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        .map-container h3 { background: #f8fafc; padding: 12px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; }
+        #map { height: 450px; width: 100%; z-index: 1; }
+        .history-container { flex: 1; min-width: 280px; background: white; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+        .history-container h3 { background: #f8fafc; padding: 12px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .history-list { list-style: none; overflow-y: auto; max-height: 450px; padding: 0; margin: 0; }
+        .history-list li { padding: 12px 16px; border-bottom: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; transition: background 0.2s; cursor: pointer; }
+        .history-list li:hover { background: #f1f5f9; }
+        .history-time { color: #64748b; font-size: 0.7rem; background: #f1f5f9; padding: 4px 8px; border-radius: 20px; }
+        .history-coord { font-family: monospace; font-weight: 500; color: #1e293b; }
+        .tag { font-size: 0.6rem; padding: 2px 8px; border-radius: 12px; font-weight: bold; margin-left: 6px; }
+        .tag-phone { background: #dbeafe; color: #1e40af; }
+        .tag-esp32 { background: #fef3c7; color: #92400e; }
+        .badge { background: #2a5298; color: white; border-radius: 30px; padding: 2px 8px; font-size: 0.7rem; }
+        .footer { text-align: center; padding: 15px; color: #5b6e8c; font-size: 0.75rem; }
+        @media (max-width: 700px) { .container { flex-direction: column; } #map { height: 350px; } }
     </style>
-
     <!-- Leaflet CSS + JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -160,18 +38,15 @@
 <body>
 
 <div class="header">
-    <h1>📍 Cynthia Phone Tracker</h1>
-    <p>Live location & history • Real-time updates</p>
+    <h1>📍 Cynthia Phone & ESP32 Tracker</h1>
+    <p>Live map • Phone GPS (blue) • ESP32 beacon reports (orange)</p>
 </div>
 
 <div class="container">
-    <!-- Map Section -->
     <div class="map-container">
         <h3>🗺️ Live Map with Trail</h3>
         <div id="map"></div>
     </div>
-
-    <!-- History Section -->
     <div class="history-container">
         <h3>📜 Location History <span class="badge" id="historyCount">0</span></h3>
         <ul class="history-list" id="historyList">
@@ -181,11 +56,11 @@
 </div>
 
 <div class="footer">
-    <span>📍 Every 30 minutes your phone sends location • All past positions shown below and on map.</span>
+    <span>📍 Phone GPS sent every 30 min • ESP32 beacon reported by nearby phones</span>
 </div>
 
 <script>
-    // Firebase configuration (same as yours)
+    // Firebase configuration (same as before)
     const firebaseConfig = {
         apiKey: "AIzaSyDuCJEgB5BZP-yK5vxPHRE5OliHTE_uvMM",
         authDomain: "phone-tracker-a71a8.firebaseapp.com",
@@ -196,12 +71,10 @@
         appId: "1:511889399383:web:7bb659500d97250c900d12",
         measurementId: "G-HMRJKZG9QV"
     };
-
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Map initialization (default view)
+    // Map init
     let map = L.map('map').setView([37.7749, -122.4194], 13);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
@@ -209,14 +82,34 @@
         maxZoom: 19
     }).addTo(map);
 
-    // Store markers and lines
     let markerLayer = L.layerGroup().addTo(map);
     let polylineLayer = L.layerGroup().addTo(map);
-    let allLocations = [];   // array of {lat, lng, timestamp, accuracy}
+    let allLocations = [];  // each: {lat, lng, timestamp, accuracy, source, beaconId?}
 
-    // Function to update the entire UI
+    // Helper: marker color based on source
+    function getMarkerColor(source) {
+        return source === 'beacon_report' ? '#f97316' : '#2563eb'; // orange for ESP32, blue for phone
+    }
+
+    // Helper: popup text
+    function getPopupText(loc) {
+        let sourceLabel = loc.source === 'beacon_report' ? '🔹 ESP32 Beacon' : '📱 Phone GPS';
+        let extra = loc.beaconId ? `<br>🔑 Beacon ID: ${loc.beaconId}` : '';
+        return `<b>${sourceLabel}</b><br>
+                Lat: ${loc.lat.toFixed(5)}<br>
+                Lng: ${loc.lng.toFixed(5)}<br>
+                Time: ${new Date(loc.timestamp).toLocaleString()}<br>
+                Accuracy: ±${Math.round(loc.accuracy || 20)}m${extra}`;
+    }
+
     function updateUI() {
-        // Sort locations by timestamp (oldest first for polyline, newest first for list)
+        if (allLocations.length === 0) {
+            document.getElementById('historyList').innerHTML = '<li style="justify-content:center;">No history yet.</li>';
+            document.getElementById('historyCount').innerText = '0';
+            return;
+        }
+
+        // Sort: oldest first for polyline, newest first for list
         const sortedOldest = [...allLocations].sort((a,b) => a.timestamp - b.timestamp);
         const sortedNewest = [...allLocations].sort((a,b) => b.timestamp - a.timestamp);
 
@@ -224,50 +117,43 @@
         markerLayer.clearLayers();
         polylineLayer.clearLayers();
 
-        if (allLocations.length === 0) {
-            document.getElementById('historyList').innerHTML = '<li style="justify-content:center;">No history yet. Waiting for location data...</li>';
-            document.getElementById('historyCount').innerText = '0';
-            return;
-        }
-
-        // 1. Draw polyline trail (oldest to newest)
+        // Draw trail (ignore source for polyline)
         if (sortedOldest.length >= 2) {
             const latlngs = sortedOldest.map(loc => [loc.lat, loc.lng]);
-            const polyline = L.polyline(latlngs, { color: '#3388ff', weight: 3, opacity: 0.7 }).addTo(polylineLayer);
+            const polyline = L.polyline(latlngs, { color: '#3388ff', weight: 3, opacity: 0.6 }).addTo(polylineLayer);
         }
 
-        // 2. Add markers for each location (newest is red, others blue)
+        // Add markers for each location (latest = larger radius, color depends on source)
         sortedOldest.forEach((loc, index) => {
             const isLatest = (index === sortedOldest.length - 1);
-            const markerColor = isLatest ? 'red' : 'blue';
-            const popupText = `<b>${isLatest ? 'Latest' : 'Past'} location</b><br>
-                                Lat: ${loc.lat.toFixed(5)}<br>
-                                Lng: ${loc.lng.toFixed(5)}<br>
-                                Time: ${new Date(loc.timestamp).toLocaleString()}<br>
-                                Accuracy: ±${Math.round(loc.accuracy || 20)}m`;
+            const color = getMarkerColor(loc.source);
+            const radius = isLatest ? 10 : 6;
             const marker = L.circleMarker([loc.lat, loc.lng], {
-                radius: isLatest ? 10 : 6,
-                color: markerColor,
+                radius: radius,
+                color: color,
                 weight: 2,
-                fillColor: markerColor,
+                fillColor: color,
                 fillOpacity: 0.7
             }).addTo(markerLayer);
-            marker.bindPopup(popupText);
+            marker.bindPopup(getPopupText(loc));
         });
 
-        // Center map on the latest location
+        // Center map on latest
         const latest = sortedNewest[0];
         map.setView([latest.lat, latest.lng], 14);
 
-        // 3. Build history list HTML (newest first)
+        // Build history list (newest first)
         let listHtml = '';
         for (let i = 0; i < sortedNewest.length; i++) {
             const loc = sortedNewest[i];
             const timeStr = new Date(loc.timestamp).toLocaleString();
             const shortCoord = `${loc.lat.toFixed(4)}°, ${loc.lng.toFixed(4)}°`;
+            const tag = loc.source === 'beacon_report'
+                ? `<span class="tag tag-esp32">ESP32</span>`
+                : `<span class="tag tag-phone">Phone</span>`;
             listHtml += `
                 <li onclick="map.setView([${loc.lat}, ${loc.lng}], 16)">
-                    <span class="history-coord">📍 ${shortCoord}</span>
+                    <span class="history-coord">📍 ${shortCoord} ${tag}</span>
                     <span class="history-time">${timeStr}</span>
                 </li>
             `;
@@ -276,41 +162,37 @@
         document.getElementById('historyCount').innerText = allLocations.length;
     }
 
-    // Listen to Firebase for all location history
+    // Listen to Firebase
     function listenForHistory() {
-        const locationsRef = database.ref('locations');
-        locationsRef.orderByChild('timestamp').on('value', (snapshot) => {
+        database.ref('locations').orderByChild('timestamp').on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data) {
                 allLocations = [];
                 updateUI();
                 return;
             }
-
-            // Convert object to array
             let newLocations = [];
             for (let id in data) {
                 let loc = data[id];
                 if (loc && typeof loc.lat === 'number' && typeof loc.lng === 'number' && loc.timestamp) {
                     newLocations.push({
-                        id: id,
                         lat: loc.lat,
                         lng: loc.lng,
                         timestamp: loc.timestamp,
-                        accuracy: loc.accuracy || 20
+                        accuracy: loc.accuracy || 20,
+                        source: loc.source || 'phone_gps',
+                        beaconId: loc.beaconId || null
                     });
                 }
             }
-            // Sort by timestamp (for consistency)
             newLocations.sort((a,b) => a.timestamp - b.timestamp);
             allLocations = newLocations;
             updateUI();
         });
     }
 
-    // Start listening
     listenForHistory();
-    console.log("Dashboard with history active. Waiting for location data...");
+    console.log("Dashboard with ESP32 support active.");
 </script>
 </body>
 </html>
